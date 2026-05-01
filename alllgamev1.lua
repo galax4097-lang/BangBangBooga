@@ -155,10 +155,10 @@ task.spawn(function()
                         -- Can thiệp vào lực kéo vật lý của Pet
                         for _, desc in pairs(pet:GetDescendants()) do
                             if desc:IsA("AlignPosition") then
-                                desc.MaxVelocity = 999999 -- Vận tốc tối đa cực lớn
-                                desc.Responsiveness = 200 -- Độ nhạy phản hồi tức thời
+                                desc.MaxVelocity = 9999 -- Vận tốc tối đa cực lớn
+                                desc.Responsiveness = 500 -- Độ nhạy phản hồi tức thời
                             elseif desc:IsA("AlignOrientation") then
-                                desc.Responsiveness = 200 -- Xoay mượt mà
+                                desc.Responsiveness = 500 -- Xoay mượt mà
                             end
                         end
                     end
