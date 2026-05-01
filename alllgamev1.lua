@@ -1,185 +1,134 @@
 local player = game:GetService("Players").LocalPlayer
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
-local workspace = game:GetService("Workspace")
+local library = {} -- Hệ thống tối ưu hóa
 
--- ==========================================
--- 1. XÓA BẢNG CŨ VÀ TẠO BẢNG MỚI MƯỢT MÀ
--- ==========================================
-local pGui = pcall(function() return game:GetService("CoreGui") end) and game:GetService("CoreGui") or player:WaitForChild("PlayerGui")
-if pGui:FindFirstChild("PetSimProHub") then
-    pGui.PetSimProHub:Destroy()
-end
-
+-- 1. TẠO GIAO DIỆN NEON VIP
 local sg = Instance.new("ScreenGui")
-sg.Name = "PetSimProHub"
-sg.ResetOnSpawn = false
-sg.Parent = pGui
+sg.Name = "PetSimUltra"
+sg.Parent = player:WaitForChild("PlayerGui")
 
--- Khung chính với hiệu ứng trong suốt ban đầu (để làm hiệu ứng Fade-in)
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 280, 0, 220)
-mainFrame.Position = UDim2.new(0.5, -140, 0.4, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-mainFrame.BackgroundTransparency = 1 
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = sg
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 300, 0, 280)
+main.Position = UDim2.new(0.5, -150, 0.4, 0)
+main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+main.BorderSizePixel = 0
+main.Parent = sg
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
 
--- Viền phát sáng lấp lánh
-local stroke = Instance.new("UIStroke")
-stroke.Thickness = 2.5
-stroke.Color = Color3.fromRGB(255, 0, 0)
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-stroke.Parent = mainFrame
+-- Viền Neon đổi màu cực mạnh
+local glow = Instance.new("UIStroke")
+glow.Thickness = 4
+glow.Color = Color3.fromRGB(0, 255, 255)
+glow.Parent = main
 
--- Tiêu đề Rainbow
+-- Hiệu ứng Rainbow cho viền
+task.spawn(function()
+    while task.wait() do
+        local hue = tick() % 5 / 5
+        glow.Color = Color3.fromHSV(hue, 1, 1)
+    end
+end)
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 45)
-title.Text = "✨ PET SIM PRO GRIND ✨"
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Text = "🚀 ULTRA PET EXPLOIT 🚀"
 title.Font = Enum.Font.GothamBlack
-title.TextSize = 16
-title.TextTransparency = 1
+title.TextSize = 18
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 title.BackgroundTransparency = 1
-title.Parent = mainFrame
-Instance.new("UICorner", title).CornerRadius = UDim.new(0, 12)
+title.Parent = main
 
--- ==========================================
--- 2. HÀM TẠO NÚT BẤM CÓ HIỆU ỨNG (HOVER)
--- ==========================================
-local function createButton(name, posY, baseColor)
+-- 2. HÀM TẠO NÚT BẤM HIỆU ỨNG NHẤP NHÁY
+local function createVipBtn(text, pos, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 40)
-    btn.Position = UDim2.new(0.05, 0, 0, posY)
-    btn.Text = name
+    btn.Size = UDim2.new(0.9, 0, 0, 50)
+    btn.Position = UDim2.new(0.05, 0, 0, pos)
+    btn.Text = text
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.BackgroundColor3 = baseColor
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.BackgroundTransparency = 1
-    btn.TextTransparency = 1
-    btn.Parent = mainFrame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.TextSize = 15
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Parent = main
+    local corner = Instance.new("UICorner", btn)
     
-    -- Hiệu ứng khi đưa chuột vào/ra
-    btn.MouseEnter:Connect(function()
-        tweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(baseColor.R * 255 + 30, baseColor.G * 255 + 30, baseColor.B * 255 + 30)}):Play()
+    local active = false
+    btn.MouseButton1Click:Connect(function()
+        active = not active
+        callback(active)
+        btn.BackgroundColor3 = active and Color3.fromRGB(0, 100, 0) or Color3.fromRGB(30, 30, 30)
+        btn.TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 200)
+        -- Hiệu ứng nảy nút
+        btn:TweenSize(UDim2.new(0.85, 0, 0, 45), "Out", "Quad", 0.1, true)
+        task.wait(0.1)
+        btn:TweenSize(UDim2.new(0.9, 0, 0, 50), "Out", "Quad", 0.1, true)
     end)
-    btn.MouseLeave:Connect(function()
-        tweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = baseColor}):Play()
-    end)
-    
-    return btn
 end
 
-local collectBtn = createButton("🧲 HÚT TIỀN (TRIỆT ĐỂ): OFF", 60, Color3.fromRGB(100, 100, 100))
-local petSpeedBtn = createButton("⚡ TỐC ĐỘ PET: OFF", 110, Color3.fromRGB(100, 100, 100))
-local closeBtn = createButton("❌ ĐÓNG GIAO DIỆN", 165, Color3.fromRGB(200, 30, 30))
-
--- ==========================================
--- 3. HIỆU ỨNG KHỞI ĐỘNG (ANIMATIONS)
--- ==========================================
--- Fade in
-tweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-tweenService:Create(title, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-tweenService:Create(collectBtn, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-tweenService:Create(petSpeedBtn, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-tweenService:Create(closeBtn, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-
--- Hiệu ứng Rainbow cho viền bảng
-local hue = 0
-runService.RenderStepped:Connect(function()
-    hue = hue + 0.005
-    if hue >= 1 then hue = 0 end
-    stroke.Color = Color3.fromHSV(hue, 1, 1)
-    title.TextColor3 = Color3.fromHSV(hue, 0.5, 1)
-end)
-
--- ==========================================
--- 4. LOGIC HOẠT ĐỘNG TRIỆT ĐỂ
--- ==========================================
-
--- Tính năng 1: HÚT TIỀN BẰNG TOUCH INTEREST (Nhận thẳng vào túi)
-local autoCollect = false
-collectBtn.MouseButton1Click:Connect(function()
-    autoCollect = not autoCollect
-    collectBtn.Text = autoCollect and "🧲 HÚT TIỀN (TRIỆT ĐỂ): ON" or "🧲 HÚT TIỀN (TRIỆT ĐỂ): OFF"
-    tweenService:Create(collectBtn, TweenInfo.new(0.3), {BackgroundColor3 = autoCollect and Color3.fromRGB(0, 180, 50) or Color3.fromRGB(100, 100, 100)}):Play()
-end)
-
-task.spawn(function()
-    while true do
-        if autoCollect and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local root = player.Character.HumanoidRootPart
+-- 3. LOGIC SIÊU CẤP
+-- Thu thập triệt để bằng cách lừa hệ thống tập tin (Remote Bypass)
+createVipBtn("HÚT TẤT CẢ (INSTANT)", 60, function(state)
+    _G.Collect = state
+    task.spawn(function()
+        while _G.Collect do
             pcall(function()
-                local things = workspace:FindFirstChild("__THINGS")
-                if things and things:FindFirstChild("Orbs") then
-                    for _, orb in pairs(things.Orbs:GetChildren()) do
-                        if orb:IsA("BasePart") then
-                            -- Kéo CFrame lại gần để hiển thị mượt
-                            orb.CFrame = root.CFrame
-                            
-                            -- ÉP GAME PHẢI NHẬN VA CHẠM (Thu thập thực sự)
-                            if firetouchinterest then
-                                firetouchinterest(root, orb, 0) -- Bắt đầu chạm
-                                firetouchinterest(root, orb, 1) -- Kết thúc chạm
-                            end
+                -- Thay vì đợi chạm, chúng ta gửi tín hiệu nhặt thẳng lên Server
+                local orbs = workspace.__THINGS.Orbs:GetChildren()
+                for i, v in pairs(orbs) do
+                    v.CFrame = player.Character.HumanoidRootPart.CFrame
+                    -- Một số bản Pet Sim dùng Remote để nhặt
+                    game:GetService("ReplicatedStorage").Network:FindFirstChild("Orbs_Collect"):FireServer({v.Name})
+                end
+            end)
+            task.wait()
+        end
+    end)
+end)
+
+-- Tốc độ Pet bằng cách xóa giới hạn Drag (Lực kéo)
+createVipBtn("PET SIÊU TỐC (NO DELAY)", 120, function(state)
+    _G.PetSpeed = state
+    task.spawn(function()
+        while _G.PetSpeed do
+            pcall(function()
+                local petFolder = workspace.__THINGS.Pets:GetChildren()
+                for _, pet in pairs(petFolder) do
+                    for _, val in pairs(pet:GetDescendants()) do
+                        if val:IsA("BodyPosition") or val:IsA("AlignPosition") then
+                            val.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+                            val.P = 1e6 -- Độ cứng của lực kéo
+                            val.D = 0   -- Xóa bỏ lực cản
                         end
                     end
                 end
             end)
+            task.wait(0.5)
         end
-        task.wait(0.1) -- Tốc độ quét 10 lần/giây
-    end
+    end)
 end)
 
--- Tính năng 2: PET DI CHUYỂN SIÊU TỐC
-local petSpeedActive = false
-petSpeedBtn.MouseButton1Click:Connect(function()
-    petSpeedActive = not petSpeedActive
-    petSpeedBtn.Text = petSpeedActive and "⚡ TỐC ĐỘ PET: BẬT" or "⚡ TỐC ĐỘ PET: TẮT"
-    tweenService:Create(petSpeedBtn, TweenInfo.new(0.3), {BackgroundColor3 = petSpeedActive and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(100, 100, 100)}):Play()
-end)
-
-task.spawn(function()
-    while true do
-        if petSpeedActive then
+createVipBtn("TỰ ĐỘNG PHÁ RƯƠNG (AREA)", 180, function(state)
+    _G.AutoFarm = state
+    task.spawn(function()
+        while _G.AutoFarm do
             pcall(function()
-                local things = workspace:FindFirstChild("__THINGS")
-                if things and things:FindFirstChild("Pets") then
-                    -- Tìm tất cả Pet đang hoạt động
-                    for _, pet in pairs(things.Pets:GetChildren()) do
-                        -- Can thiệp vào lực kéo vật lý của Pet
-                        for _, desc in pairs(pet:GetDescendants()) do
-                            if desc:IsA("AlignPosition") then
-                                desc.MaxVelocity = 9999 -- Vận tốc tối đa cực lớn
-                                desc.Responsiveness = 500 -- Độ nhạy phản hồi tức thời
-                            elseif desc:IsA("AlignOrientation") then
-                                desc.Responsiveness = 500 -- Xoay mượt mà
-                            end
-                        end
-                    end
+                -- Tìm vật phẩm gần nhất và bắt pet tấn công
+                local coins = workspace.__THINGS.Coins:GetChildren()
+                for _, pet in pairs(workspace.__THINGS.Pets:GetChildren()) do
+                    -- Gửi lệnh tấn công trực tiếp (tên Remote có thể thay đổi)
+                    game:GetService("ReplicatedStorage").Network.JoinCoin:FireServer(coins[1].Name, {pet.Name})
                 end
             end)
+            task.wait(0.1)
         end
-        task.wait(1) -- Quét và buff lại cho Pet mỗi giây (trường hợp bạn đổi pet mới)
-    end
+    end)
 end)
 
--- Nút Đóng Giao Diện
-closeBtn.MouseButton1Click:Connect(function()
-    autoCollect = false
-    petSpeedActive = false
-    -- Fade out từ từ rồi xóa bảng
-    tweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-    for _, obj in pairs(mainFrame:GetChildren()) do
-        if obj:IsA("TextButton") or obj:IsA("TextLabel") then
-            tweenService:Create(obj, TweenInfo.new(0.3), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
-        end
-    end
-    task.wait(0.3)
-    sg:Destroy()
-end)
+-- Nút đóng
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -35, 0, 5)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+close.Parent = main
+close.MouseButton1Click:Connect(function() sg:Destroy() end)
