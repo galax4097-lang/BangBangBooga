@@ -1,134 +1,141 @@
 local player = game:GetService("Players").LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
-local library = {} -- Hệ thống tối ưu hóa
+local uis = game:GetService("UserInputService")
 
--- 1. TẠO GIAO DIỆN NEON VIP
+-- 1. TẠO GUI CYBER NEON
 local sg = Instance.new("ScreenGui")
-sg.Name = "PetSimUltra"
+sg.Name = "TSB_Ultimate"
 sg.Parent = player:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 300, 0, 280)
-main.Position = UDim2.new(0.5, -150, 0.4, 0)
-main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+main.Size = UDim2.new(0, 300, 0, 350)
+main.Position = UDim2.new(0.5, -150, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
 main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
 main.Parent = sg
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
 
--- Viền Neon đổi màu cực mạnh
-local glow = Instance.new("UIStroke")
-glow.Thickness = 4
-glow.Color = Color3.fromRGB(0, 255, 255)
-glow.Parent = main
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 15)
 
--- Hiệu ứng Rainbow cho viền
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(0, 255, 150)
+stroke.Parent = main
+
+-- Hiệu ứng chạy màu RGB mượt
 task.spawn(function()
     while task.wait() do
-        local hue = tick() % 5 / 5
-        glow.Color = Color3.fromHSV(hue, 1, 1)
+        local hue = tick() % 4 / 4
+        stroke.Color = Color3.fromHSV(hue, 0.8, 1)
     end
 end)
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 50)
-title.Text = "🚀 ULTRA PET EXPLOIT 🚀"
+title.Text = "TSB: ULTIMATE ABUSE"
 title.Font = Enum.Font.GothamBlack
 title.TextSize = 18
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.BackgroundTransparency = 1
 title.Parent = main
 
--- 2. HÀM TẠO NÚT BẤM HIỆU ỨNG NHẤP NHÁY
-local function createVipBtn(text, pos, callback)
+-- 2. HÀM TẠO NÚT BẤM HIỆU ỨNG CAO CẤP
+local function createToggle(text, pos, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.9, 0, 0, 50)
     btn.Position = UDim2.new(0.05, 0, 0, pos)
     btn.Text = text
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 15
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.TextSize = 14
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
     btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     btn.Parent = main
-    local corner = Instance.new("UICorner", btn)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
     
     local active = false
     btn.MouseButton1Click:Connect(function()
         active = not active
         callback(active)
-        btn.BackgroundColor3 = active and Color3.fromRGB(0, 100, 0) or Color3.fromRGB(30, 30, 30)
-        btn.TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 200)
-        -- Hiệu ứng nảy nút
-        btn:TweenSize(UDim2.new(0.85, 0, 0, 45), "Out", "Quad", 0.1, true)
-        task.wait(0.1)
-        btn:TweenSize(UDim2.new(0.9, 0, 0, 50), "Out", "Quad", 0.1, true)
+        tweenService:Create(btn, TweenInfo.new(0.3), {
+            BackgroundColor3 = active and Color3.fromRGB(0, 150, 100) or Color3.fromRGB(25, 25, 30),
+            TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 200)
+        }):Play()
     end)
 end
 
--- 3. LOGIC SIÊU CẤP
--- Thu thập triệt để bằng cách lừa hệ thống tập tin (Remote Bypass)
-createVipBtn("HÚT TẤT CẢ (INSTANT)", 60, function(state)
-    _G.Collect = state
+-- 3. LOGIC CHIẾN ĐẤU (AIM - NÉ - DASH)
+
+-- A. DASH LIÊN TỤC (INFINITE DASH)
+createToggle("⚡ DASH LIÊN TỤC (Q)", 60, function(state)
+    _G.InfDash = state
     task.spawn(function()
-        while _G.Collect do
+        while _G.InfDash do
             pcall(function()
-                -- Thay vì đợi chạm, chúng ta gửi tín hiệu nhặt thẳng lên Server
-                local orbs = workspace.__THINGS.Orbs:GetChildren()
-                for i, v in pairs(orbs) do
-                    v.CFrame = player.Character.HumanoidRootPart.CFrame
-                    -- Một số bản Pet Sim dùng Remote để nhặt
-                    game:GetService("ReplicatedStorage").Network:FindFirstChild("Orbs_Collect"):FireServer({v.Name})
+                -- Xóa mọi dấu vết của Cooldown lướt
+                if player.Character:FindFirstChild("DashCooldown") then
+                    player.Character.DashCooldown:Destroy()
                 end
             end)
-            task.wait()
+            task.wait(0.01)
         end
     end)
 end)
 
--- Tốc độ Pet bằng cách xóa giới hạn Drag (Lực kéo)
-createVipBtn("PET SIÊU TỐC (NO DELAY)", 120, function(state)
-    _G.PetSpeed = state
-    task.spawn(function()
-        while _G.PetSpeed do
-            pcall(function()
-                local petFolder = workspace.__THINGS.Pets:GetChildren()
-                for _, pet in pairs(petFolder) do
-                    for _, val in pairs(pet:GetDescendants()) do
-                        if val:IsA("BodyPosition") or val:IsA("AlignPosition") then
-                            val.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-                            val.P = 1e6 -- Độ cứng của lực kéo
-                            val.D = 0   -- Xóa bỏ lực cản
-                        end
+-- B. AIMLOCK CHUẨN XÁC (DỰA TRÊN CAMERA)
+createToggle("🎯 AIMLOCK (TỰ HƯỚNG ĐỊCH)", 120, function(state)
+    _G.Aimlock = state
+    runService.RenderStepped:Connect(function()
+        if _G.Aimlock then
+            local closest = nil
+            local shortestDist = math.huge
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local pos = p.Character.HumanoidRootPart.Position
+                    local dist = (player.Character.HumanoidRootPart.Position - pos).Magnitude
+                    if dist < shortestDist and dist < 50 then -- Tầm Aim 50 studs
+                        shortestDist = dist
+                        closest = p
                     end
                 end
-            end)
-            task.wait(0.5)
+            end
+            if closest then
+                -- Quay camera và nhân vật về phía địch
+                local targetPos = closest.Character.HumanoidRootPart.Position
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position, Vector3.new(targetPos.X, player.Character.HumanoidRootPart.Position.Y, targetPos.Z))
+            end
         end
     end)
 end)
 
-createVipBtn("TỰ ĐỘNG PHÁ RƯƠNG (AREA)", 180, function(state)
-    _G.AutoFarm = state
-    task.spawn(function()
-        while _G.AutoFarm do
-            pcall(function()
-                -- Tìm vật phẩm gần nhất và bắt pet tấn công
-                local coins = workspace.__THINGS.Coins:GetChildren()
-                for _, pet in pairs(workspace.__THINGS.Pets:GetChildren()) do
-                    -- Gửi lệnh tấn công trực tiếp (tên Remote có thể thay đổi)
-                    game:GetService("ReplicatedStorage").Network.JoinCoin:FireServer(coins[1].Name, {pet.Name})
+-- C. TỰ ĐỘNG NÉ (AUTO DODGE / EVADE)
+createToggle("🛡️ TỰ ĐỘNG NÉ (AUTO EVADE)", 180, function(state)
+    _G.AutoEvade = state
+    runService.Heartbeat:Connect(function()
+        if _G.AutoEvade and player.Character then
+            local hum = player.Character:FindFirstChild("Humanoid")
+            -- Kiểm tra nếu nhân vật rơi vào trạng thái bị choáng hoặc bị bắt combo
+            if hum and (hum:GetState() == Enum.HumanoidStateType.StrafingNoPhysics or hum.PlatformStand) then
+                -- Simulate lướt về phía sau để thoát combo
+                local dashFolder = player.Character:FindFirstChild("Communicate")
+                if dashFolder then
+                    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.Q, false, game)
                 end
-            end)
-            task.wait(0.1)
+            end
         end
     end)
 end)
 
--- Nút đóng
+-- Nút Close
 local close = Instance.new("TextButton")
 close.Size = UDim2.new(0, 30, 0, 30)
 close.Position = UDim2.new(1, -35, 0, 5)
 close.Text = "X"
-close.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+close.BackgroundColor3 = Color3.fromRGB(200, 0, 50)
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
 close.Parent = main
+Instance.new("UICorner", close)
 close.MouseButton1Click:Connect(function() sg:Destroy() end)
