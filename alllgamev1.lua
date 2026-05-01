@@ -1,76 +1,58 @@
 local player = game:GetService("Players").LocalPlayer
-local runService = game:GetService("RunService")
+local pGui = player:WaitForChild("PlayerGui")
 
--- GUI Giao diện
+-- Xóa bảng cũ nếu nó đang tồn tại để reset
+if pGui:FindFirstChild("TestGui") then
+    pGui.TestGui:Destroy()
+end
+
+-- 1. TẠO SCREEN GUI
 local sg = Instance.new("ScreenGui")
-sg.Name = "PetSimHub"
-pcall(function() sg.Parent = game:GetService("CoreGui") end)
-if not sg.Parent then sg.Parent = player.PlayerGui end
+sg.Name = "TestGui"
+sg.ResetOnSpawn = false
+sg.DisplayOrder = 999 -- Đảm bảo nó hiện trên cùng các layer khác
+sg.Parent = pGui
 
-local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 220, 0, 180)
-main.Position = UDim2.new(0.5, -110, 0.1, 0)
-main.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-main.Draggable = true
-main.Active = true
-main.Parent = sg
-Instance.new("UICorner", main)
+-- 2. KHUNG CHÍNH (Sẽ hiện ở giữa màn hình)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 250, 0, 150)
+frame.Position = UDim2.new(0.5, -125, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.Active = true
+frame.Draggable = true -- Bạn có thể cầm chuột kéo nó đi
+frame.Parent = sg
 
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 15)
+corner.Parent = frame
+
+-- 3. TIÊU ĐỀ (Để bạn biết là nó đã chạy)
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 35)
-title.Text = "🐾 PET SIM UTILITY"
-title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "ĐÃ KÍCH HOẠT GUI ✅"
+title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Parent = main
+title.BackgroundColor3 = Color3.fromRGB(255, 85, 0)
+title.Parent = frame
+Instance.new("UICorner", title)
 
--- 1. NÚT AUTO COLLECT ORBS (Hút tiền)
-local collectBtn = Instance.new("TextButton")
-collectBtn.Size = UDim2.new(0.9, 0, 0, 45)
-collectBtn.Position = UDim2.new(0.05, 0, 0.25, 0)
-collectBtn.Text = "HÚT TIỀN: OFF"
-collectBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-collectBtn.Parent = main
-Instance.new("UICorner", collectBtn)
+-- 4. NÚT TEST TỐC ĐỘ
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0.8, 0, 0, 40)
+btn.Position = UDim2.new(0.1, 0, 0.5, 0)
+btn.Text = "CHẠY NHANH (X50)"
+btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Font = Enum.Font.GothamBold
+btn.Parent = frame
+Instance.new("UICorner", btn)
 
-local collecting = false
-collectBtn.MouseButton1Click:Connect(function()
-    collecting = not collecting
-    collectBtn.Text = collecting and "HÚT TIỀN: ON" or "HÚT TIỀN: OFF"
-end)
-
--- Vòng lặp hút tiền
-task.spawn(function()
-    while true do
-        if collecting then
-            pcall(function()
-                -- Đường dẫn Orbs có thể thay đổi tùy bản update, thường ở workspace
-                local orbs = workspace:FindFirstChild("ActiveOrbs") 
-                if orbs then
-                    for _, orb in pairs(orbs:GetChildren()) do
-                        if orb:IsA("BasePart") then
-                            orb.CFrame = player.Character.HumanoidRootPart.CFrame
-                        end
-                    end
-                end
-            end)
-        end
-        task.wait(0.1)
-    end
-end)
-
--- 2. NÚT HOVERBOARD SPEED (Ván bay siêu tốc)
-local vánBtn = Instance.new("TextButton")
-vánBtn.Size = UDim2.new(0.9, 0, 0, 45)
-vánBtn.Position = UDim2.new(0.05, 0, 0.55, 0)
-vánBtn.Text = "SIÊU VÁN BAY"
-vánBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 200)
-vánBtn.Parent = main
-Instance.new("UICorner", vánBtn)
-
-vánBtn.MouseButton1Click:Connect(function()
-    -- Lạm dụng việc thay đổi WalkSpeed nhưng chỉ khi đang dùng ván
+btn.MouseButton1Click:Connect(function()
     local char = player.Character
     if char and char:FindFirstChild("Humanoid") then
-        char.Humanoid.WalkSpeed = 150 -- Tốc độ ván bay cực nhanh
+        char.Humanoid.WalkSpeed = 50
+        btn.Text = "ĐANG BẬT SPEED!"
     end
 end)
+
+print("GUI đã được gửi vào PlayerGui của bạn!")
