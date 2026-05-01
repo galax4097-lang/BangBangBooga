@@ -119,7 +119,7 @@ createToggle("🛡️ TỰ ĐỘNG NÉ (AUTO EVADE)", 180, function(state)
             local hum = player.Character:FindFirstChild("Humanoid")
             -- Kiểm tra nếu nhân vật rơi vào trạng thái bị choáng hoặc bị bắt combo
             if hum and (hum:GetState() == Enum.HumanoidStateType.StrafingNoPhysics or hum.PlatformStand) then
-                -- Simulate lướt về phía sau để thoát combo
+                -- Simulate lướt về phía sau để thoát combo đấy
                 local dashFolder = player.Character:FindFirstChild("Communicate")
                 if dashFolder then
                     game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.Q, false, game)
